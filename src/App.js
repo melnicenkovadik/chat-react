@@ -2,6 +2,7 @@ import React, {useRef, useState} from 'react';
 import './App.css';
 
 import firebase from 'firebase/app';
+
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/analytics';
@@ -21,7 +22,11 @@ firebase.initializeApp({
 
 const auth = firebase.auth();
 const firestore = firebase.firestore();
+
+// eslint-disable-next-line react-hooks/rules-of-hooks
+
 function App() {
+
     const [user] = useAuthState(auth);
     return (
         <div className="App">
@@ -31,7 +36,7 @@ function App() {
             </header>
 
             <section>
-                {user ? <ChatRoom/> : <SignIn/>}
+                {user ? <ChatRoom user={user.email}/> : <SignIn/>}
             </section>
 
         </div>
@@ -61,7 +66,8 @@ function SignOut() {
 }
 
 
-function ChatRoom() {
+function ChatRoom({user}) {
+    const vadim = user === "melnicenkovadik@gmail.com"
     const dummy = useRef();
     const messagesRef = firestore.collection('messages');
     const query = messagesRef.orderBy('createdAt').limit(25);
@@ -89,9 +95,8 @@ function ChatRoom() {
 
     return (<>
         <main>
-
-            {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg}/>)}
-
+            {vadim ? (<><h1>Hello admin</h1></>) : ''}
+            {messages && messages.map(msg => <ChatMessage vadim={vadim} id={msg.id} key={msg.id} message={msg}/>)}
             <span ref={dummy}/>
 
         </main>
@@ -99,9 +104,10 @@ function ChatRoom() {
         <form onSubmit={sendMessage}>
 
             <input value={formValue} onChange={(e) => setFormValue(e.target.value)}
-                   placeholder="Скажи  что-то  приятное"/>
+                   placeholder="Ваше сообщение..."/>
 
-            <button type="submit" disabled={!formValue}>Отправить</button>
+            <button type="submit" disabled={!formValue}><i className="fa fa-paper-plane" aria-hidden="true"/>
+            </button>
 
         </form>
     </>)
@@ -110,16 +116,21 @@ function ChatRoom() {
 
 function ChatMessage(props) {
     const {text, uid, photoURL} = props.message;
-
     const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
-
+    const removeMsg = () => {
+        console.log('id')
+    }
     return (
         <>
-        <div className={`message ${messageClass}`}>
-            <img src={photoURL || 'https://api.adorable.io/avatars/23/abott@adorable.png'} alt={'avatar'}/>
-            <p>{text}</p>
-        </div>
-    </>)
+            <div className={`message ${messageClass}`}>
+                {props.vadim ?
+                    <button onClick={removeMsg}><i className="fa fa-trash"></i></button>
+                    : ''
+                }
+                <img src={photoURL || 'https://api.adorable.io/avatars/23/abott@adorable.png'} alt={'avatar'}/>
+                <p>{text}</p>
+            </div>
+        </>)
 }
 
 

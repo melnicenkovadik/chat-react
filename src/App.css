@@ -67,10 +67,12 @@ form {
 }
 
 form button {
-  width: 20%;
-  background-color: rgb(56, 56, 143);
+  width: 15%;
+  background-color: rgb(165, 165, 165);
 }
-
+form button i{
+ transform: scale(2)
+}
 
 input {
   line-height: 1.5;
